@@ -25,6 +25,109 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddProblemOpen, setIsAddProblemOpen] = useState(false)
 
+  const problems = [
+    {
+      id: 1,
+      title: "Fibonacci Sequence",
+      difficulty: "Easy",
+      timeLimit: "1s",
+      memoryLimit: "256MB",
+    },
+    {
+      id: 2,
+      title: "Sorting Algorithm",
+      difficulty: "Medium",
+      timeLimit: "2s",
+      memoryLimit: "256MB",
+    },
+    {
+      id: 3,
+      title: "Binary Search",
+      difficulty: "Medium",
+      timeLimit: "1s",
+      memoryLimit: "256MB",
+    },
+  ]
+
+  const testCases = [
+    {
+      id: 1,
+      problem: "Fibonacci Sequence",
+      input: "5",
+      expectedOutput: "5",
+      visibility: "Public",
+    },
+    {
+      id: 2,
+      problem: "Fibonacci Sequence",
+      input: "10",
+      expectedOutput: "55",
+      visibility: "Hidden",
+    },
+    {
+      id: 3,
+      problem: "Sorting Algorithm",
+      input: "[5,3,1,4,2]",
+      expectedOutput: "[1,2,3,4,5]",
+      visibility: "Public",
+    },
+  ]
+
+  const criteria = [
+    {
+      id: 1,
+      name: "Correctness",
+      description: "Code produces correct output for all test cases",
+      weight: "60%",
+      problem: "Fibonacci Sequence",
+    },
+    {
+      id: 2,
+      name: "Efficiency",
+      description: "Code runs within the specified time limit",
+      weight: "20%",
+      problem: "Fibonacci Sequence",
+    },
+    {
+      id: 3,
+      name: "Code Quality",
+      description: "Code is well-structured and follows best practices",
+      weight: "20%",
+      problem: "Fibonacci Sequence",
+    },
+  ]
+
+  const results = [
+    {
+      id: 1,
+      student: "John Doe",
+      problem: "Fibonacci Sequence",
+      submissionDate: "March 15, 2025",
+      score: "100/100",
+    },
+    {
+      id: 2,
+      student: "Jane Smith",
+      problem: "Sorting Algorithm",
+      submissionDate: "March 14, 2025",
+      score: "85/100",
+    },
+    {
+      id: 3,
+      student: "Mike Johnson",
+      problem: "Binary Search",
+      submissionDate: "March 12, 2025",
+      score: "90/100",
+    },
+    {
+      id: 4,
+      student: "Sarah Williams",
+      problem: "Fibonacci Sequence",
+      submissionDate: "March 10, 2025",
+      score: "75/100",
+    },
+  ]
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
@@ -138,60 +241,11 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Fibonacci Sequence</TableCell>
-                      <TableCell>Easy</TableCell>
-                      <TableCell>1s</TableCell>
-                      <TableCell>256MB</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Sorting Algorithm</TableCell>
-                      <TableCell>Medium</TableCell>
-                      <TableCell>2s</TableCell>
-                      <TableCell>256MB</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Binary Search</TableCell>
-                      <TableCell>Medium</TableCell>
-                      <TableCell>1s</TableCell>
-                      <TableCell>256MB</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    {
+                      problems.map((problem) => (
+                        <ProblemData key={problem.id} problem={problem} />
+                      ))
+                    }
                   </TableBody>
                 </Table>
               </CardContent>
@@ -232,60 +286,11 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Fibonacci Sequence</TableCell>
-                      <TableCell>5</TableCell>
-                      <TableCell>5</TableCell>
-                      <TableCell>Public</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Fibonacci Sequence</TableCell>
-                      <TableCell>10</TableCell>
-                      <TableCell>55</TableCell>
-                      <TableCell>Hidden</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Sorting Algorithm</TableCell>
-                      <TableCell>[5,3,1,4,2]</TableCell>
-                      <TableCell>[1,2,3,4,5]</TableCell>
-                      <TableCell>Public</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    {
+                      testCases.map((testCase) => (
+                        <TestCaseData key={testCase.id} testCase={testCase} />
+                      ))
+                    }
                   </TableBody>
                 </Table>
               </CardContent>
@@ -326,60 +331,11 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Correctness</TableCell>
-                      <TableCell>Code produces correct output for all test cases</TableCell>
-                      <TableCell>60%</TableCell>
-                      <TableCell>Fibonacci Sequence</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Efficiency</TableCell>
-                      <TableCell>Code runs within the specified time limit</TableCell>
-                      <TableCell>20%</TableCell>
-                      <TableCell>Fibonacci Sequence</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Code Quality</TableCell>
-                      <TableCell>Code is well-structured and follows best practices</TableCell>
-                      <TableCell>20%</TableCell>
-                      <TableCell>Fibonacci Sequence</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    {
+                      criteria.map((criteria) => (
+                        <CriteriaData key={criteria.id} criteria={criteria} />
+                      ))
+                    }
                   </TableBody>
                 </Table>
               </CardContent>
@@ -412,50 +368,11 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">John Doe</TableCell>
-                      <TableCell>Fibonacci Sequence</TableCell>
-                      <TableCell>March 15, 2025</TableCell>
-                      <TableCell>100/100</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Jane Smith</TableCell>
-                      <TableCell>Sorting Algorithm</TableCell>
-                      <TableCell>March 14, 2025</TableCell>
-                      <TableCell>85/100</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Mike Johnson</TableCell>
-                      <TableCell>Binary Search</TableCell>
-                      <TableCell>March 12, 2025</TableCell>
-                      <TableCell>90/100</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Sarah Williams</TableCell>
-                      <TableCell>Fibonacci Sequence</TableCell>
-                      <TableCell>March 10, 2025</TableCell>
-                      <TableCell>75/100</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                    {
+                      results.map((result) => (
+                        <ResultData key={result.id} result={result} />
+                      ))
+                    }
                   </TableBody>
                 </Table>
               </CardContent>
@@ -467,3 +384,120 @@ export default function AdminDashboard() {
   )
 }
 
+interface ProblemDataProps {
+    id: number
+    title: string
+    difficulty: string
+    timeLimit: string
+    memoryLimit: string
+}
+
+
+function ProblemData({ problem }: { problem: ProblemDataProps }) {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{problem.title}</TableCell>
+      <TableCell>{problem.difficulty}</TableCell>
+      <TableCell>{problem.timeLimit}</TableCell>
+      <TableCell>{problem.memoryLimit}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+            <span className="sr-only">Edit</span>
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+interface TestCaseDataProps {
+    id: number
+    problem: string
+    input: string
+    expectedOutput: string
+    visibility: string
+}
+
+function TestCaseData({ testCase }: { testCase: TestCaseDataProps }) {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{testCase.problem}</TableCell>
+      <TableCell>{testCase.input}</TableCell>
+      <TableCell>{testCase.expectedOutput}</TableCell>
+      <TableCell>{testCase.visibility}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+            <span className="sr-only">Edit</span>
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+interface CriteriaDataProps {
+    id: number
+    name: string
+    description: string
+    weight: string
+    problem: string
+}
+
+function CriteriaData({ criteria }: { criteria: CriteriaDataProps }) {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{criteria.name}</TableCell>
+      <TableCell>{criteria.description}</TableCell>
+      <TableCell>{criteria.weight}</TableCell>
+      <TableCell>{criteria.problem}</TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="icon">
+            <Edit className="h-4 w-4" />
+            <span className="sr-only">Edit</span>
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+interface ResultDataProps {
+    id: number
+    student: string
+    problem: string
+    submissionDate: string
+    score: string
+}
+
+function ResultData({ result }: { result: ResultDataProps }) {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{result.student}</TableCell>
+      <TableCell>{result.problem}</TableCell>
+      <TableCell>{result.submissionDate}</TableCell>
+      <TableCell>{result.score}</TableCell>
+      <TableCell className="text-right">
+        <Button variant="outline" size="sm">
+          View Details
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
