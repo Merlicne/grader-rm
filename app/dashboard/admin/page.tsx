@@ -127,7 +127,6 @@ export default function AdminDashboard() {
       score: "75/100",
     },
   ]
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b">

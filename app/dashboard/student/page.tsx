@@ -9,9 +9,16 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UserCircle, LogOut, CheckCircle, AlertCircle } from "lucide-react"
+import generate from "@/server/action/gemini"
 
 export default function StudentDashboard() {
   const [code, setCode] = useState("")
+
+  function handleSubmit() {
+    generate(code).then((response) => {
+      console.log(response)
+    });
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -106,7 +113,7 @@ export default function StudentDashboard() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full">Submit Code</Button>
+                  <Button className="w-full" onClick={handleSubmit}>Submit Code</Button>
                 </CardFooter>
               </Card>
             </div>
