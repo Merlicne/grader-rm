@@ -1,6 +1,7 @@
 "use server";
 import { GoogleGenerativeAI, ObjectSchema, SchemaType } from "@google/generative-ai";
 import { Description } from "@radix-ui/react-dialog";
+import { getCriteriaByProblemId, getProblemById } from "../repository/problemRepoMock";
 
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY || "");
@@ -10,9 +11,10 @@ const schema: ObjectSchema = {
     type: SchemaType.OBJECT,
     properties: {
         Description: {
+            description: "list of Criteria score descriptions",
             type: SchemaType.ARRAY,
-            description: "Criteria score description",
             items: {
+                description: "concise and brief description of the criteria",
                 type: SchemaType.STRING,
             },
         },
@@ -33,16 +35,30 @@ const model = genAI.getGenerativeModel({
 
 const graderPrompt = `
 # Grader for code submissions
-The code will be python code that solves a problem. The code will be graded based on the following criteria:
-1. Syntax 80% 
-2. Logic 20%
+The code will be python code that solves a problem the code must trying to perfectly solve the problem. The code will be graded based on the criteria with problem prompt and example code.
 `
 
-export default async function generate(code: string) {
+const example = ``
+
+export default async function generate(problemId:string, code: string) {
+
+    const problem = getProblemById(problemId)?.description;
+    if (!problem) {
+        return "Problem not found";
+    }
+    const criteria = getCriteriaByProblemId(problemId).map(c => c.description);
+
+
     const prompt = [
         graderPrompt,
-        code,
+        example,
+        "PROBLEM: "+problem,
+        "CRITERIA:",...criteria,
+        "CODE: \n"+code,
     ] 
+
+    console.log(prompt);
+
     const response = await model.generateContent(prompt);
     return response.response.text();
 }
