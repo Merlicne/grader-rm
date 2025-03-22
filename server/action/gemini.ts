@@ -1,27 +1,44 @@
 "use server";
 import { GoogleGenerativeAI, ObjectSchema, SchemaType } from "@google/generative-ai";
-import { Description } from "@radix-ui/react-dialog";
-import { getCriteriaByProblemId, getProblemById } from "../repository/problemRepoMock";
+import { problemService, criteriaService } from "../registry";
 
-
+// API key with fallback handling
 const genAI = new GoogleGenerativeAI(process.env.API_KEY || "");
 
+// Enhanced schema with detailed criteria evaluation
 const schema: ObjectSchema = {
-    description: "Grader for code submissions",
+    description: "Detailed grader for code submissions",
     type: SchemaType.OBJECT,
     properties: {
-        Description: {
-            description: "list of Criteria score descriptions",
+        CriteriaEvaluations: {
+            description: "Detailed evaluation for each criteria",
             type: SchemaType.ARRAY,
             items: {
-                description: "concise and brief description of the criteria",
-                type: SchemaType.STRING,
-            },
+                type: SchemaType.OBJECT,
+                properties: {
+                    Criteria: {
+                        type: SchemaType.STRING,
+                        description: "The criteria being evaluated"
+                    },
+                    Score: {
+                        type: SchemaType.INTEGER,
+                        description: "Score for this criteria (0-100)"
+                    },
+                    Justification: {
+                        type: SchemaType.STRING,
+                        description: "Brief explanation with specific code references for why this score was given"
+                    }
+                }
+            }
         },
-        Score: {
+        OverallScore: {
             type: SchemaType.NUMBER,
-            description: "Score for the submission (%)",
+            description: "Overall score for the submission (0-100)"
         },
+        Feedback: {
+            type: SchemaType.STRING,
+            description: "Concise, constructive feedback highlighting strengths and areas for improvement"
+        }
     }
 };
 
@@ -30,35 +47,114 @@ const model = genAI.getGenerativeModel({
     generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
+        temperature: 0.2, // Lower temperature for more consistent evaluations
     },
 });
 
+// More concise grader prompt with detailed instructions
 const graderPrompt = `
-# Grader for code submissions
-The code will be python code that solves a problem the code must trying to perfectly solve the problem. The code will be graded based on the criteria with problem prompt and example code.
-`
+# Code Submission Grader
 
-const example = ``
+You are an expert programming instructor evaluating Python code submissions. 
+Your task is to provide brief and objective assessments based on specific criteria.
 
-export default async function generate(problemId:string, code: string) {
+## Evaluation Instructions:
+1. Focus only on the most important aspects of each criterion
+2. Keep all explanations concise (max 100 characters per justification)
+3. Be objective in your scoring
+4. Consider both correctness and code quality
 
-    const problem = getProblemById(problemId)?.description;
-    if (!problem) {
-        return "Problem not found";
+## Scoring Guidelines:
+- 90-100: Excellent implementation
+- 75-89: Good with minor issues
+- 60-74: Satisfactory with significant issues
+- 40-59: Partial implementation with major flaws
+- 0-39: Does not solve the problem
+
+Important: Keep all responses very brief.
+`;
+
+// Simplified example to save tokens
+const example = `
+Example Evaluation:
+Problem: Write a function to find the factorial of a number.
+Criteria: 
+1. Correctness
+2. Error handling
+3. Efficiency
+
+Sample Code:
+\`\`\`python
+def factorial(n):
+    if n < 0: return "Error: Factorial not defined for negative numbers"
+    result = 1
+    for i in range(1, n+1): result *= i
+    return result
+\`\`\`
+
+Example Output:
+{
+  "CriteriaEvaluations": [
+    {
+      "Criteria": "Correctness",
+      "Score": 100,
+      "Justification": "Correctly calculates factorial using iteration."
+    },
+    {
+      "Criteria": "Error handling",
+      "Score": 90,
+      "Justification": "Handles negative inputs."
+    },
+    {
+      "Criteria": "Efficiency",
+      "Score": 95,
+      "Justification": "Uses optimal O(n) approach."
     }
-    const criteria = getCriteriaByProblemId(problemId).map(c => c.description);
+  ],
+  "OverallScore": 95,
+  "Feedback": "Strong implementation with good error handling."
+}
+`;
 
+export default async function generate(problemId: string, code: string) {
+    try {
+        // Get problem and criteria
+        const problem = problemService.getProblemById(problemId)?.description;
+        if (!problem) {
+            return JSON.stringify({
+                error: "Problem not found",
+                success: false
+            });
+        }
+        
+        const criteria = criteriaService.getCriteriaByProblemId(problemId).map(c => c.description);
+        if (!criteria.length) {
+            return JSON.stringify({
+                error: "No criteria found for this problem",
+                success: false
+            });
+        }
 
-    const prompt = [
-        graderPrompt,
-        example,
-        "PROBLEM: "+problem,
-        "CRITERIA:",...criteria,
-        "CODE: \n"+code,
-    ] 
+        // Construct prompt
+        const prompt = [
+            graderPrompt,
+            example,
+            "PROBLEM: " + problem.substring(0, 500), // Limit problem size
+            "CRITERIA:",
+            ...criteria.map(criterion => `- ${criterion.substring(0, 100)}`), // Limit each criterion
+            "CODE: \n```python\n" + code + "\n```",
+        ];
 
-    console.log(prompt);
-
-    const response = await model.generateContent(prompt);
-    return response.response.text();
+        console.log("Sending evaluation request to Gemini...");
+        
+        // Get response with timeout handling
+        const responsePromise = model.generateContent(prompt);
+        return (await responsePromise).response.text();
+    } catch (error) {
+        console.error("Error in code evaluation:", error);
+        return JSON.stringify({
+            error: error instanceof Error ? error.message : "Unknown error occurred during evaluation",
+            success: false
+        });
+    }
 }
