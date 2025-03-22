@@ -6,7 +6,7 @@ class CriteriaRepositoryMock implements CriteriaRepository {
         {
             id: "criteria1",
             problem_id: "problem1",
-            description: "Syntax 80%: forgot to add a colon, missing indentation",
+            description: "Syntax 50%: There is a syntax error in the code eg. missing a colon, missing indentation in the if statement",
             weight: 80,
             created_at: new Date(),
             updated_at: new Date(),
@@ -14,7 +14,7 @@ class CriteriaRepositoryMock implements CriteriaRepository {
         {
             id: "criteria2",
             problem_id: "problem1",
-            description: "Logic 20%: using the correct formula to calculate the nth Fibonacci number, don't forget to handle the base cases",
+            description: "Logic 50%: The code does not use the correct formula to calculate the nth Fibonacci number, don't forget to handle the base cases",
             weight: 20,
             created_at: new Date(),
             updated_at: new Date(),
