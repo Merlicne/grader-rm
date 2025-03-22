@@ -7,13 +7,22 @@ import { SubmissionRepositoryMock } from "./repository/submissionRepoMock";
 import { TestcaseService } from "./service/testcase";
 import { TestcaseRepositoryMock } from "./repository/testcaseRepoMock";
 
+const criteriaRepo = new CriteriaRepositoryMock();
+const problemRepo = new ProblemRepositoryMock();
+const submissionRepo = new SubmissionRepositoryMock();
+const testcaseRepo = new TestcaseRepositoryMock();
 
-const problemService = new ProblemService(new ProblemRepositoryMock());
-const criteriaService = new CriteriaService(new CriteriaRepositoryMock());
-const submissionService = new SubmissionService(new SubmissionRepositoryMock());
-const testcaseService = new TestcaseService(new TestcaseRepositoryMock());
+const problemService = new ProblemService(problemRepo);
+const criteriaService = new CriteriaService(criteriaRepo);
+const submissionService = new SubmissionService(submissionRepo);
+const testcaseService = new TestcaseService(testcaseRepo);
 
 export { 
+    criteriaRepo,
+    problemRepo,
+    submissionRepo,
+    testcaseRepo,
+    
     problemService, 
     criteriaService, 
     submissionService, 

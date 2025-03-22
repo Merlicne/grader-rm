@@ -88,7 +88,7 @@ export default async function generate(problemId: string, code: string) {
             });
         }
         
-        const criteria = criteriaService.getCriteriaByProblemId(problemId).map(c => c.description);
+        const criteria = criteriaService.getCriteriaByProblemId(problemId);
         if (!criteria.length) {
             return JSON.stringify({
                 error: "No criteria found for this problem",
@@ -102,7 +102,7 @@ export default async function generate(problemId: string, code: string) {
             example,
             "PROBLEM: " + problem.substring(0, 500), // Limit problem size
             "CRITERIA:",
-            ...criteria.map(criterion => `- ${criterion.substring(0, 100)}`), // Limit each criterion
+            ...criteria.map(criterion => `- (${criterion.weight})  ${criterion.description.substring(0, 100)}`), // Limit each criterion
             "CODE: \n```python\n" + code + "\n```",
         ];
 

@@ -53,6 +53,9 @@ class CriteriaRepositoryMock implements CriteriaRepository {
         },
     ];
 
+    getAllCriteria(): Criteria[] {
+        return this.criteria;
+    }
     getCriteriaByProblemId(problem_id: string): Criteria[] {
         return this.criteria.filter((c) => c.problem_id === problem_id);
     }
