@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UserCircle, LogOut, CheckCircle, AlertCircle } from "lucide-react"
-import SubmissionsTap from "./submissionsTabs"
+import SubmissionsTabs from "./submissionsTabs"
 import SubmitCodeTab from "./submitCodeTab"
 
 export default function StudentDashboard() {
@@ -34,7 +34,7 @@ export default function StudentDashboard() {
             <TabsTrigger value="submissions">My Submissions</TabsTrigger>
           </TabsList>
           <SubmitCodeTab />
-          <SubmissionsTap />
+          <SubmissionsTabs />
         </Tabs>
       </main>
     </div>

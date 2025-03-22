@@ -75,46 +75,7 @@ Important: Keep all responses very brief.
 `;
 
 // Simplified example to save tokens
-const example = `
-Example Evaluation:
-Problem: Write a function to find the factorial of a number.
-Criteria: 
-1. Correctness
-2. Error handling
-3. Efficiency
-
-Sample Code:
-\`\`\`python
-def factorial(n):
-    if n < 0: return "Error: Factorial not defined for negative numbers"
-    result = 1
-    for i in range(1, n+1): result *= i
-    return result
-\`\`\`
-
-Example Output:
-{
-  "CriteriaEvaluations": [
-    {
-      "Criteria": "Correctness",
-      "Score": 100,
-      "Justification": "Correctly calculates factorial using iteration."
-    },
-    {
-      "Criteria": "Error handling",
-      "Score": 90,
-      "Justification": "Handles negative inputs."
-    },
-    {
-      "Criteria": "Efficiency",
-      "Score": 95,
-      "Justification": "Uses optimal O(n) approach."
-    }
-  ],
-  "OverallScore": 95,
-  "Feedback": "Strong implementation with good error handling."
-}
-`;
+const example = ``;
 
 export default async function generate(problemId: string, code: string) {
     try {
@@ -127,7 +88,7 @@ export default async function generate(problemId: string, code: string) {
             });
         }
         
-        const criteria = criteriaService.getCriteriaByProblemId(problemId).map(c => c.description);
+        const criteria = criteriaService.getCriteriaByProblemId(problemId);
         if (!criteria.length) {
             return JSON.stringify({
                 error: "No criteria found for this problem",
@@ -141,7 +102,7 @@ export default async function generate(problemId: string, code: string) {
             example,
             "PROBLEM: " + problem.substring(0, 500), // Limit problem size
             "CRITERIA:",
-            ...criteria.map(criterion => `- ${criterion.substring(0, 100)}`), // Limit each criterion
+            ...criteria.map(criterion => `- (${criterion.weight})  ${criterion.description.substring(0, 100)}`), // Limit each criterion
             "CODE: \n```python\n" + code + "\n```",
         ];
 
