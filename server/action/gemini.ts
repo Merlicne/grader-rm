@@ -119,3 +119,56 @@ export default async function generate(problemId: string, code: string) {
         });
     }
 }
+
+/**
+ * Generates evaluation results using Gemini model with provided criteria
+ * @param problemId ID of the problem being evaluated
+ * @param code Code to evaluate
+ * @param criteria Array of criteria objects with weight and description
+ * @returns JSON string containing evaluation results
+ */
+export async function generateWithCriteria(
+    problemId: string, 
+    code: string, 
+    criteria: Array<{ weight: number; description: string }>
+) {
+    try {
+        // Get problem description
+        const problem = problemService.getProblemById(problemId)?.description;
+        if (!problem) {
+            return JSON.stringify({
+                error: "Problem not found",
+                success: false
+            });
+        }
+
+        if (!criteria.length) {
+            return JSON.stringify({
+                error: "No criteria provided for evaluation",
+                success: false
+            });
+        }
+
+        // Construct prompt
+        const prompt = [
+            graderPrompt,
+            "EXAMPLE: " + example,
+            "PROBLEM: " + problem,
+            "CRITERIA:",
+            ...criteria.map(criterion => `- ${criterion.weight}% ${criterion.description}`),
+            "CODE: \n```python\n" + code + "\n```",
+        ];
+
+        console.log("Sending evaluation request to Gemini with custom criteria...");
+        
+        // Get response with timeout handling
+        const responsePromise = model.generateContent(prompt);
+        return (await responsePromise).response.text();
+    } catch (error) {
+        console.error("Error in code evaluation:", error);
+        return JSON.stringify({
+            error: error instanceof Error ? error.message : "Unknown error occurred during evaluation",
+            success: false
+        });
+    }
+}

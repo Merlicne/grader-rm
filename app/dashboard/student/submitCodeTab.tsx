@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { TabsContent } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import generate from "@/server/action/gemini"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import generate, { generateWithCriteria } from "@/server/action/gemini"
 import Editor from "@monaco-editor/react";
 import { problemService, testcaseService } from "@/server/registry"
 
@@ -37,6 +39,11 @@ interface SubmissionsResultProps {
     error?: string;
 }
 
+interface TemporaryCriterion {
+    weight: number;
+    description: string;
+}
+
 // Main component
 export default function SubmitCodeTab() {
     const [code, setCode] = useState("print('Hello world')")
@@ -47,6 +54,12 @@ export default function SubmitCodeTab() {
     const [submissionResult, setSubmissionResult] = useState<SubmissionsResultProps>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [language, setLanguage] = useState("python");
+    const [useCustomCriteria, setUseCustomCriteria] = useState(false);
+    const [temporaryCriteria, setTemporaryCriteria] = useState<TemporaryCriterion[]>([
+        { weight: 40, description: "Correctness" },
+        { weight: 30, description: "Efficiency" },
+        { weight: 30, description: "Code Quality" }
+    ]);
     
     // Load problems on component mount
     useEffect(() => {
@@ -70,6 +83,23 @@ export default function SubmitCodeTab() {
         }
     }, [problemId, problems]);
 
+    // Handle adding new criterion
+    const handleAddCriterion = () => {
+        setTemporaryCriteria([...temporaryCriteria, { weight: 0, description: "" }]);
+    };
+
+    // Handle removing criterion
+    const handleRemoveCriterion = (index: number) => {
+        setTemporaryCriteria(temporaryCriteria.filter((_, i) => i !== index));
+    };
+
+    // Handle criterion update
+    const handleCriterionUpdate = (index: number, field: keyof TemporaryCriterion, value: string | number) => {
+        const newCriteria = [...temporaryCriteria];
+        newCriteria[index] = { ...newCriteria[index], [field]: value };
+        setTemporaryCriteria(newCriteria);
+    };
+
     // Handle code submission
     function handleSubmitCode() {
         if (!selectedProblem) return;
@@ -91,7 +121,12 @@ export default function SubmitCodeTab() {
 
         setIsSubmitting(true);
         
-        generate(problemId, code)
+        // Use the appropriate generate function based on whether custom criteria is enabled
+        const evaluationPromise = useCustomCriteria
+            ? generateWithCriteria(problemId, code, temporaryCriteria)
+            : generate(problemId, code);
+        
+        evaluationPromise
             .then((response) => {
                 try {
                     const result = JSON.parse(response);
@@ -108,14 +143,19 @@ export default function SubmitCodeTab() {
                             alert("Error: " + result.error);
                         }
                     } else {
-
                         let overallScore = 0;
+                        let totalWeight = 0;
                         for (const evaluation of result.CriteriaEvaluations) {
-                            overallScore += evaluation.Score / 100.0 * evaluation.Weight;
+                            // Calculate score as a percentage of the maximum possible score
+                            const scorePercentage = (evaluation.Score / 100.0);
+                            overallScore += scorePercentage * evaluation.Weight;
+                            totalWeight += evaluation.Weight;
                         }
+                        // Normalize the score to 100 if weights don't sum to 100
+                        const normalizedScore = totalWeight > 0 ? (overallScore / totalWeight) * 100 : 0;
                         setSubmissionResult({
                             criteriaEvaluations: result.CriteriaEvaluations,
-                            overallScore: overallScore,
+                            overallScore: normalizedScore,
                             feedback: result.Feedback
                         });
                         alert("Code evaluated successfully.");
@@ -190,6 +230,69 @@ export default function SubmitCodeTab() {
                             {isSubmitting ? "Evaluating..." : "Submit Code"}
                         </Button>
                     </CardFooter>
+                </Card>
+
+                {/* Custom Criteria Card */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Evaluation Criteria</CardTitle>
+                        <CardDescription>Customize evaluation criteria (optional)</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    id="useCustomCriteria"
+                                    checked={useCustomCriteria}
+                                    onChange={(e) => setUseCustomCriteria(e.target.checked)}
+                                    className="h-4 w-4 rounded border-gray-300"
+                                />
+                                <Label htmlFor="useCustomCriteria">Use custom criteria</Label>
+                            </div>
+
+                            {useCustomCriteria && (
+                                <div className="space-y-4">
+                                    {temporaryCriteria.map((criterion, index) => (
+                                        <div key={index} className="flex items-start space-x-2">
+                                            <div className="flex-grow space-y-2">
+                                                <div className="flex items-center space-x-2">
+                                                    <Input
+                                                        type="number"
+                                                        value={criterion.weight}
+                                                        onChange={(e) => handleCriterionUpdate(index, 'weight', parseInt(e.target.value))}
+                                                        className="w-20"
+                                                        min="0"
+                                                        max="100"
+                                                        placeholder="Weight %"
+                                                    />
+                                                    <Input
+                                                        value={criterion.description}
+                                                        onChange={(e) => handleCriterionUpdate(index, 'description', e.target.value)}
+                                                        placeholder="Criterion description"
+                                                    />
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        onClick={() => handleRemoveCriterion(index)}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleAddCriterion}
+                                        className="w-full"
+                                    >
+                                        Add Criterion
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
                 </Card>
                 
                 {/* Submission Result Card */}
@@ -343,6 +446,9 @@ function CodeEditor({
 
 // Submission result component
 function SubmissionsResult({ criteriaEvaluations, overallScore, feedback, error }: SubmissionsResultProps) {
+
+    const totalWeight = criteriaEvaluations?.reduce((sum, evaluation) => sum + evaluation.Weight, 0) || 0;
+
     if (error) {
         return (
             <div className="p-4 border rounded-md bg-red-50 text-red-600">
@@ -367,7 +473,7 @@ function SubmissionsResult({ criteriaEvaluations, overallScore, feedback, error 
                     <h3 className="font-medium">Overall Score:</h3>
                     <div className="text-xl font-bold">
                         <span className={overallScore >= 80 ? "text-green-600" : overallScore >= 60 ? "text-yellow-600" : "text-red-600"}>
-                            {overallScore}/100
+                            {overallScore.toFixed(1)}%
                         </span>
                     </div>
                 </div>
@@ -387,10 +493,15 @@ function SubmissionsResult({ criteriaEvaluations, overallScore, feedback, error 
                         {criteriaEvaluations.map((evaluation, index) => (
                             <div key={index} className="border rounded-md p-3">
                                 <div className="flex justify-between mb-1">
-                                    <span className="font-medium">{evaluation.Criteria} ({evaluation.Weight}%)</span>
-                                    <span className={evaluation.Score >= 80 ? "text-green-600" : evaluation.Score >= 60 ? "text-yellow-600" : "text-red-600"}>
-                                        {evaluation.Score}/100
-                                    </span>
+                                    <span className="font-medium">{evaluation.Criteria} ({(evaluation.Weight / (totalWeight / 100)).toFixed(1)}%)</span>
+                                    <div className="flex flex-col items-end">
+                                        <span className={evaluation.Score >= 80 ? "text-green-600" : evaluation.Score >= 60 ? "text-yellow-600" : "text-red-600"}>
+                                            {evaluation.Score.toFixed(1)}%
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            {((evaluation.Score / 100.0) * evaluation.Weight / (totalWeight / 100)).toFixed(1)}% of 100%
+                                        </span>
+                                    </div>
                                 </div>
                                 <p className="text-sm text-gray-600">{evaluation.Justification}</p>
                             </div>
