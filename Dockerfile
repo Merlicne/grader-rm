@@ -1,5 +1,5 @@
 # Stage 1: Dependencies
-FROM oven/bun AS deps
+FROM oven/bun:latest
 WORKDIR /app
 COPY . .
 
@@ -25,4 +25,4 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Use Bun to run the server
-CMD ["bun", "run", "start"] 
+CMD ["bunx", "next", "start"] 
