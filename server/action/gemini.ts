@@ -27,13 +27,13 @@ const schema: ObjectSchema = {
                     Justification: {
                         type: SchemaType.STRING,
                         description: "Brief explanation with specific code references for why this score was given"
+                    },
+                    Weight: {
+                        type: SchemaType.INTEGER,
+                        description: "Weight of this criteria (0-100)"
                     }
                 }
             }
-        },
-        OverallScore: {
-            type: SchemaType.NUMBER,
-            description: "Overall score for the submission (0-100)"
         },
         Feedback: {
             type: SchemaType.STRING,
@@ -62,16 +62,15 @@ Your task is to provide brief and objective assessments based on specific criter
 1. Focus only on the most important aspects of each criterion
 2. Keep all explanations concise (max 100 characters per justification)
 3. Be objective in your scoring
-4. Consider both correctness and code quality
 
 ## Scoring Guidelines:
-- 90-100: Excellent implementation
-- 75-89: Good with minor issues
-- 60-74: Satisfactory with significant issues
-- 40-59: Partial implementation with major flaws
-- 0-39: Does not solve the problem
+- 100: Excellent implementation
+- 75-99: Good with minor issues
+- 50-74: Satisfactory with significant issues
+- 25-49: Partial implementation with major flaws
+- 0-24: Does not solve the problem
 
-Important: Keep all responses very brief.
+Important: Keep all responses very brief and only provide scoring for the criteria mentioned in the criteria section.
 `;
 
 // Simplified example to save tokens
@@ -88,7 +87,7 @@ export default async function generate(problemId: string, code: string) {
             });
         }
         
-        const criteria = criteriaService.getCriteriaByProblemId(problemId).map(c => c.description);
+        const criteria = criteriaService.getCriteriaByProblemId(problemId);
         if (!criteria.length) {
             return JSON.stringify({
                 error: "No criteria found for this problem",
@@ -99,14 +98,15 @@ export default async function generate(problemId: string, code: string) {
         // Construct prompt
         const prompt = [
             graderPrompt,
-            example,
-            "PROBLEM: " + problem.substring(0, 500), // Limit problem size
+            "EXAMPLE: " + example,
+            "PROBLEM: " + problem,
             "CRITERIA:",
-            ...criteria.map(criterion => `- ${criterion.substring(0, 100)}`), // Limit each criterion
+            ...criteria.map(criterion => `- ${criterion.weight}% ${criterion.description}`), // Limit each criterion
             "CODE: \n```python\n" + code + "\n```",
         ];
 
         console.log("Sending evaluation request to Gemini...");
+        // console.log(prompt);
         
         // Get response with timeout handling
         const responsePromise = model.generateContent(prompt);

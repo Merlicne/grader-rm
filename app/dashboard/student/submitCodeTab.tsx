@@ -28,6 +28,7 @@ interface Testcase {
 interface SubmissionsResultProps {
     criteriaEvaluations?: {
         Criteria: string;
+        Weight: number;
         Score: number;
         Justification: string;
     }[];
@@ -107,9 +108,14 @@ export default function SubmitCodeTab() {
                             alert("Error: " + result.error);
                         }
                     } else {
+
+                        let overallScore = 0;
+                        for (const evaluation of result.CriteriaEvaluations) {
+                            overallScore += evaluation.Score / 100.0 * evaluation.Weight;
+                        }
                         setSubmissionResult({
                             criteriaEvaluations: result.CriteriaEvaluations,
-                            overallScore: result.OverallScore,
+                            overallScore: overallScore,
                             feedback: result.Feedback
                         });
                         alert("Code evaluated successfully.");
@@ -381,7 +387,7 @@ function SubmissionsResult({ criteriaEvaluations, overallScore, feedback, error 
                         {criteriaEvaluations.map((evaluation, index) => (
                             <div key={index} className="border rounded-md p-3">
                                 <div className="flex justify-between mb-1">
-                                    <span className="font-medium">{evaluation.Criteria}</span>
+                                    <span className="font-medium">{evaluation.Criteria} ({evaluation.Weight}%)</span>
                                     <span className={evaluation.Score >= 80 ? "text-green-600" : evaluation.Score >= 60 ? "text-yellow-600" : "text-red-600"}>
                                         {evaluation.Score}/100
                                     </span>

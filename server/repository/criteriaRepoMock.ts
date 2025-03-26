@@ -6,21 +6,29 @@ class CriteriaRepositoryMock implements CriteriaRepository {
         {
             id: "criteria1",
             problem_id: "problem1",
-            description: "Syntax 50%: There is a syntax error in the code eg. missing a colon, missing indentation in the if statement",
-            weight: 80,
+            description: "Syntax : There is a syntax error in the code eg. missing a colon, missing indentation in the if statement",
+            weight: 25,
             created_at: new Date(),
             updated_at: new Date(),
         },
         {
             id: "criteria2",
             problem_id: "problem1",
-            description: "Logic 50%: The code does not use the correct formula to calculate the nth Fibonacci number, don't forget to handle the base cases",
-            weight: 20,
+            description: "Logic : The code does not use the correct formula to calculate the nth Fibonacci number, don't forget to handle the base cases",
+            weight: 50,
             created_at: new Date(),
             updated_at: new Date(),
         },
         {
             id: "criteria3",
+            problem_id: "problem1",
+            description: "Function  : Can the code be written in a function",
+            weight: 25,
+            created_at: new Date(),
+            updated_at: new Date(),
+        },
+        {
+            id: "criteria4",
             problem_id: "problem2",
             description: "Syntax 80%: The code must be written in python and must be syntactically correct",
             weight: 80,
@@ -28,7 +36,7 @@ class CriteriaRepositoryMock implements CriteriaRepository {
             updated_at: new Date()
         },
         {
-            id: "criteria4",
+            id: "criteria5",
             problem_id: "problem2",
             description: "Logic 20%: The code must use the correct logic to solve the problem",
             weight: 20,
@@ -36,7 +44,7 @@ class CriteriaRepositoryMock implements CriteriaRepository {
             updated_at: new Date()
         },
         {
-            id: "criteria5",
+            id: "criteria6",
             problem_id: "problem3",
             description: "Syntax 80%: The code must be written in python and must be syntactically correct",
             weight: 80,
@@ -44,7 +52,7 @@ class CriteriaRepositoryMock implements CriteriaRepository {
             updated_at: new Date()
         },
         {
-            id: "criteria6",
+            id: "criteria7",
             problem_id: "problem3",
             description: "Logic 20%: The code must use the correct logic to solve the problem",
             weight: 20,
